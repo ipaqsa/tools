@@ -141,7 +141,6 @@ func (g *Graph) disabledByDependencies(n node.Node) string {
 		deps[dep.To()] = dep
 	}
 
-	// Use NodesOf for efficient iterator conversion
 	parents := graph.NodesOf(g.engine.To(n.ID()))
 	for _, parent := range parents {
 		parentNode := parent.(node.Node)

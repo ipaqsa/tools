@@ -77,13 +77,3 @@ func (s *Scheduler) Schedule(ctx context.Context, name string) ([]Schedule, erro
 
 	return schedules, nil
 }
-
-// Each step waits previous
-// Converge:
-// global run - in global queue. Without scheduling
-// calculate - in global queue. Without scheduling. This task calculate graph(skip global)
-// disable package - in a package queue. Without scheduling
-// ensureCRDs - in a package queue. Without scheduling
-// enable critical - in a package queue. With scheduling(wait each other by order).
-// enable functional - in a package queue. Without scheduling
-// enable application - in a package queue. Without scheduling

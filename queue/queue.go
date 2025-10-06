@@ -38,6 +38,10 @@ func newQueue(name string, handler Handler) *Queue {
 }
 
 func (q *Queue) Enqueue(task *task.Task) {
+	if q == nil || task == nil {
+		return
+	}
+
 	q.mu.Lock()
 	defer q.mu.Unlock()
 
@@ -90,8 +94,7 @@ func (q *Queue) process(ctx context.Context) {
 	q.mu.Unlock()
 
 	if err := q.handler(ctx, t); err != nil {
-		delay := t.Backoff().NextBackOff()
-		if delay != backoff.Stop {
+		if delay := t.Backoff().NextBackOff(); delay != backoff.Stop {
 			t.SetNextRetry(time.Now().Add(delay))
 			q.mu.Lock()
 			q.deque.PushFront(t)
@@ -103,6 +106,25 @@ func (q *Queue) process(ctx context.Context) {
 func (q *Queue) Stop() {
 	q.cancel()
 	q.wg.Wait()
+}
+
+func (q *Queue) Wait() {
+	ticker := time.NewTicker(100 * time.Millisecond)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-q.ctx.Done():
+			return
+		case <-ticker.C:
+			q.mu.Lock()
+			size := q.deque.Len()
+			q.mu.Unlock()
+			if size == 0 {
+				return
+			}
+		}
+	}
 }
 
 func (q *Queue) Snapshots() []*task.Task {

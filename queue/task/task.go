@@ -4,9 +4,11 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff/v4"
+	"github.com/google/uuid"
 )
 
 type Task struct {
+	id      string
 	kind    string
 	subject string
 	meta    metadata
@@ -19,12 +21,17 @@ type metadata map[string]string
 
 func New(kind, subject string) *Task {
 	return &Task{
+		id:        uuid.New().String(),
 		kind:      kind,
 		subject:   subject,
 		meta:      make(map[string]string),
 		backoff:   backoff.NewExponentialBackOff(),
 		nextRetry: time.Now(),
 	}
+}
+
+func (t *Task) ID() string {
+	return t.id
 }
 
 func (t *Task) Get(key string) string {
