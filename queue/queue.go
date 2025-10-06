@@ -9,7 +9,7 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	"github.com/gammazero/deque"
 
-	"tools/worker/task"
+	"tools/queue/task"
 )
 
 type Queue struct {
