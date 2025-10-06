@@ -5,12 +5,14 @@ import (
 )
 
 type Manager struct {
-	queues map[string]*Queue
+	handler Handler
+	queues  map[string]*Queue
 }
 
-func New() *Manager {
+func New(handler Handler) *Manager {
 	return &Manager{
-		queues: make(map[string]*Queue),
+		handler: handler,
+		queues:  make(map[string]*Queue),
 	}
 }
 
@@ -18,9 +20,9 @@ func (m *Manager) Get(name string) *Queue {
 	return m.queues[name]
 }
 
-func (m *Manager) Spawn(ctx context.Context, name string, handler Handler) {
+func (m *Manager) Spawn(ctx context.Context, name string) {
 	if _, ok := m.queues[name]; !ok {
-		m.queues[name] = newQueue(name, handler).Start(ctx)
+		m.queues[name] = newQueue(name, m.handler).Start(ctx)
 	}
 }
 
